@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Простой сайт — с экспериментами</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg1:#f5f7ff;--bg2:#eef6ff;--card:#ffffff;--accent:#2563eb;--muted:#6b7280;--particle-rgb:255,255,255;--text:#0f172a}
+    [data-theme="dark"]{--bg1:#071428;--bg2:#031022;--card:#081424;--accent:#60a5fa;--muted:#94a3b8;--text:#e6eef8;--particle-rgb:255,255,255}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;margin:0;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:3rem;transition:background .3s ease,color .2s}
+    .wrap{width:100%;max-width:1000px}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+    .logo{display:flex;align-items:center;gap:.6rem}
+    .logo .dot{width:36px;height:36px;background:linear-gradient(45deg,var(--accent),#7c3aed);border-radius:8px;box-shadow:0 6px 18px rgba(37,99,235,0.18)}
+    h1{font-size:1.25rem;margin:0}
+    nav a{color:var(--muted);text-decoration:none;margin-left:1rem;font-weight:600}
+
+    .controls{display:flex;gap:.6rem;align-items:center}
+    .toggle{background:transparent;border:1px solid rgba(15,20,40,0.06);padding:.4rem .6rem;border-radius:8px;cursor:pointer;color:var(--muted);transition:background .2s,border-color .2s}
+    [data-theme="dark"] .toggle{border-color:rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);color:var(--text)}
+
+    .hero{background:var(--card);padding:2rem;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.06);display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:center;position:relative;overflow:hidden}
+    [data-theme="dark"] .hero{box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+    .hero h2{margin:0 0 .5rem 0;font-size:1.5rem}
+    .hero p{margin:0;color:var(--muted)}
+
+    .meta{background:linear-gradient(180deg,#fbfdff,#f7fbff);border-radius:10px;padding:1rem;text-align:center}
+    [data-theme="dark"] .meta{background:linear-gradient(180deg,#071226,#071233)}
+    .meta .time{font-weight:700;font-size:1.25rem;color:var(--accent)}
+    .btn{display:inline-block;margin-top:.75rem;padding:.5rem .9rem;background:var(--accent);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;box-shadow:0 6px 18px rgba(37,99,235,0.16)}
+
+    .features{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}
+    .feature{background:var(--card);padding:1rem;border-radius:10px;box-shadow:0 4px 18px rgba(8,20,40,0.04);text-align:center}
+    [data-theme="dark"] .feature{background:rgba(255,255,255,0.02);box-shadow:0 4px 18px rgba(0,0,0,0.45)}
+    .feature h3{margin:0 0 .5rem 0;font-size:1rem}
+    .feature p{margin:0;color:var(--muted);font-size:.9rem}
+
+    .experiments{display:flex;flex-direction:column;gap:.5rem;margin-top:.8rem}
+    .exp-row{display:flex;gap:.5rem;align-items:center}
+
+    footer{margin-top:1rem;text-align:center;color:var(--muted);font-size:.9rem}
+
+    /* particle canvas */
+    #particles{position:absolute;inset:0;pointer-events:none;opacity:.9}
+
+    /* confetti */
+    .confetti{position:fixed;left:50%;top:20%;pointer-events:none}
+    .c{position:fixed;width:10px;height:14px;border-radius:2px;opacity:0.95}
+
+    @media (max-width:840px){.hero{grid-template-columns:1fr;}.features{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width:520px){.features{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo"><div class="dot"></div><h1>Простой сайт</h1></div>
+      <div class="controls">
+        <div style="font-size:.9rem;color:var(--muted);">T — переключить тему</div>
+        <button id="themeToggle" class="toggle" aria-label="Переключить тему">🌙</button>
+      </div>
+    </header>
+
+    <main class="hero" id="hero">
+      <canvas id="particles"></canvas>
+      <div>
+        <h2>Красивая, простая и быстрая страница</h2>
+        <p>Эта страница развернута встроенным Python HTTP-сервером. Обновляется время и содержит экспериментальные фичи.</p>
+
+        <div class="features">
+          <div class="feature"><h3>Лёгкая</h3><p>Минимум зависимостей, быстрый отклик.</p></div>
+          <div class="feature"><h3>Адаптивная</h3><p>Хорошо смотрится на мобильных и десктопах.</p></div>
+          <div class="feature"><h3>Интерактивная</h3><p>Темы, частицы, конфетти и мелкие эксперименты.</p></div>
+        </div>
+
+        <div class="experiments">
+          <div class="exp-row"><label><input type="checkbox" id="toggleParticles" checked> Частицы</label></div>
+          <div class="exp-row"><label><input type="checkbox" id="toggleTilt"> Наклон карточки при движении мыши</label></div>
+          <div class="exp-row"><button id="quoteBtn" class="btn">Новая цитата</button> <span id="quote" style="margin-left:.6rem;color:var(--muted)"></span></div>
+          <div class="exp-row"><button id="surprise" class="btn">Сюрприз (конфетти)</button></div>
+        </div>
+
+      </div>
+
+      <aside class="meta">
+        <div>Текущее время</div>
+        <div class="time" id="now">--:--:--</div>
+        <a class="btn" href="index.html#" id="refresh">Обновить время</a>
+      </aside>
+    </main>
+
+    <footer>
+      <div>Доступно по адресу: <strong>http://[REDACTED_IP]:8000</strong></div>
+      <div style="margin-top:.5rem">Используйте кнопку вверху или клавишу T для переключения темы.</div>
+    </footer>
+  </div>
+
+<script>
+  // time
+  function update(){document.getElementById('now').textContent=new Date().toLocaleString();}
+  update();setInterval(update,1000);
+  document.getElementById('refresh').addEventListener('click',function(e){e.preventDefault();update();this.textContent='Обновлено';setTimeout(()=>this.textContent='Обновить время',1200)});
+
+  // theme
+  const body = document.documentElement;
+  const themeToggle = document.getElementById('themeToggle');
+  function applyTheme(t){ if(t==='dark') body.setAttribute('data-theme','dark'); else body.removeAttribute('data-theme'); localStorage.setItem('theme',t); themeToggle.textContent = (t==='dark')? '☀️':'🌙'; }
+  const saved = localStorage.getItem('theme')||'light'; applyTheme(saved);
+  themeToggle.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'));
+  window.addEventListener('keydown',e=>{ if(e.key.toLowerCase()==='t'){ const now = document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'; applyTheme(now); } });
+
+  // particles (canvas)
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext && canvas.getContext('2d');
+  // read particle rgb from CSS variable for theme-aware color
+  const particleRGB = (getComputedStyle(document.documentElement).getPropertyValue('--particle-rgb')||'255,255,255').trim();
+  let parts = [];
+  function resize(){ canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; }
+  function initParticles(){ parts = []; for(let i=0;i<60;i++){ parts.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.8+0.6,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,alpha:0.6+Math.random()*0.4}) } }
+  function draw(){ if(!ctx) return; ctx.clearRect(0,0,canvas.width,canvas.height); parts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0) p.x=canvas.width; if(p.x>canvas.width) p.x=0; if(p.y<0) p.y=canvas.height; if(p.y>canvas.height) p.y=0; ctx.beginPath(); ctx.fillStyle = `rgba(${particleRGB},${p.alpha})`; ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }) ; requestAnimationFrame(draw); }
+  function startParticles(){ if(!ctx) return; resize(); initParticles(); draw(); }
+  function stopParticles(){ if(ctx) ctx.clearRect(0,0,canvas.width,canvas.height); }
+  window.addEventListener('resize',()=>{ resize(); });
+  const particlesCheckbox = document.getElementById('toggleParticles');
+  function setParticles(enabled){ canvas.style.display = enabled? 'block':'none'; if(enabled) startParticles(); else stopParticles(); }
+  setParticles(particlesCheckbox.checked);
+  particlesCheckbox.addEventListener('change',()=>setParticles(particlesCheckbox.checked));
+
+  // tilt hero
+  const hero = document.getElementById('hero');
+  const tiltCheckbox = document.getElementById('toggleTilt');
+  function onMove(e){ if(!tiltCheckbox.checked) return; const rect = hero.getBoundingClientRect(); const x = (e.clientX - rect.left) / rect.width - 0.5; const y = (e.clientY - rect.top) / rect.height - 0.5; hero.style.transform = `perspective(800px) rotateX(${ -y*5 }deg) rotateY(${ x*7 }deg)`; }
+  function onLeave(){ hero.style.transform = 'none'; }
+  hero.addEventListener('mousemove',onMove); hero.addEventListener('mouseleave',onLeave);
+
+  // quotes
+  const quotes = [
+    '«Действуй, не дожидаясь идеального момента.»',
+    '«Маленькие улучшения каждый день дают большой результат.»',
+    '«Код — это коммуникация, не только для машины.»',
+    '«Экспериментируй — это путь к открытиям.»'
+  ];
+  const quoteEl = document.getElementById('quote'); const quoteBtn = document.getElementById('quoteBtn');
+  function setQuote(){ quoteEl.textContent = quotes[Math.floor(Math.random()*quotes.length)]; }
+  setQuote(); quoteBtn.addEventListener('click',setQuote);
+
+  // confetti simple
+  function confetti(){ const colors = ['#f97316','#60a5fa','#fb7185','#34d399','#f59e0b']; for(let i=0;i<40;i++){ const el = document.createElement('div'); el.className='c'; el.style.left = (50 + (Math.random()-0.5)*60) + '%'; el.style.top = (10+Math.random()*30)+'%'; el.style.background = colors[Math.floor(Math.random()*colors.length)]; el.style.transform = `translateX(${(Math.random()-0.5)*200}px)`; el.style.opacity = 1; document.body.appendChild(el); setTimeout(()=>{ el.style.transition='transform 1500ms ease-out, opacity 1200ms linear'; el.style.transform = `translateY(${200+Math.random()*500}px) rotate(${Math.random()*720}deg)`; el.style.opacity=0; },50); setTimeout(()=>el.remove(),1800); } }
+  document.getElementById('surprise').addEventListener('click',confetti);
+
+  // small accessibility: focus styles
+  document.addEventListener('keydown',e=>{ if(e.key==='Tab') document.body.classList.add('show-focus'); });
+
+  // init
+  if(canvas && ctx){ canvas.style.display='block'; canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; startParticles(); }
+
+</script>
+</body>
+</html>
